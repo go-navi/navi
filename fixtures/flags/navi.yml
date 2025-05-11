@@ -1,0 +1,5 @@
+projects:
+  proj-1:
+    dir: .
+    cmds:
+      file: node file.js

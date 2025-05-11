@@ -1,0 +1,38 @@
+{
+  "name": "go-navi",
+  "version": "1.0.0",
+  "description": "A lightweight, cross-platform command runner tool for developers",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "go-npm install",
+    "preuninstall": "go-npm uninstall"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/go-navi/navi.git"
+  },
+  "author": "Go Navi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/go-navi/navi/issues"
+  },
+  "goBinary": {
+    "name": "navi",
+    "path": "./bin",
+    "url": "https://github.com/go-navi/navi/releases/download/v{{version}}/navi_{{platform}}_{{arch}}{{archive_ext}}"
+  },
+  "homepage": "https://github.com/go-navi/navi#readme",
+  "dependencies": {
+    "@go-task/go-npm": "^0.2.0"
+  },
+  "files": [],
+  "keywords": [
+    "navi",
+    "cli",
+    "command",
+    "runner",
+    "command-runner",
+    "task-runner",
+    "build"
+  ]
+}

@@ -1,0 +1,22 @@
+builds:
+  - goos:
+      - linux
+      - windows
+      - darwin
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+archives:
+  - id: tar.gz
+    format: tar.gz
+    name_template: "{{.Binary}}_{{.Os}}_{{.Arch}}"
+    format_overrides:
+      - goos: windows
+        format: zip
+  - id: binary
+    format: binary
+    name_template: "{{.Binary}}_{{.Os}}_{{.Arch}}"

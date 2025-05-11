@@ -1,0 +1,4 @@
+commands:
+  cmd-1:
+    dir: ../go
+    run: go run main.go

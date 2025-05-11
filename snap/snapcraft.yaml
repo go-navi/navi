@@ -1,0 +1,22 @@
+name: navi
+base: core24
+version: v1.0.0
+summary: A lightweight, cross-platform command runner for developers
+description: |
+  A lightweight, cross-platform command runner tool that simplifies development workflows across multiple projects, languages, and frameworks.
+  Navi helps developers organize and execute commands from a single configuration file, providing an intuitive way to manage complex project workflows through a simple interface.
+
+grade: stable
+confinement: classic
+
+parts:
+  navi:
+    plugin: dump
+    source:
+      - on amd64: https://github.com/go-navi/navi/releases/download/$SNAPCRAFT_PROJECT_VERSION/navi_linux_amd64.tar.gz
+      - on i386: https://github.com/go-navi/navi/releases/download/$SNAPCRAFT_PROJECT_VERSION/navi_linux_386.tar.gz
+      - on arm64: https://github.com/go-navi/navi/releases/download/$SNAPCRAFT_PROJECT_VERSION/navi_linux_arm64.tar.gz
+
+apps:
+  navi:
+    command: navi

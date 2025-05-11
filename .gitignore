@@ -1,0 +1,9 @@
+# ignore
+navi
+navi.exe*
+bin/
+package-lock.json
+node_modules/
+
+# preserve
+!*/navi/

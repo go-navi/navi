@@ -1,0 +1,5 @@
+projects:
+  proj:
+    dir: ../node
+    cmds:
+      test-1: node main.js
