@@ -1,0 +1,20 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "args": "node args.js",
+    "main": "node main.js",
+    "exit": "node exit.js",
+    "timeout-1": "node timeout_1.js",
+    "timeout-2": "node timeout_2.js",
+    "timeout-3": "node timeout_3.js",
+    "continuous": "node continuous.js",
+    "env-vars": "node env_vars.js",
+    "env-vars-pre": "node env_vars_pre.js",
+    "env-vars-post": "node env_vars_post.js"
+  },
+  "keywords": [],
+  "author": ""
+}

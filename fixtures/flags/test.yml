@@ -1,0 +1,5 @@
+projects:
+  proj-1:
+    dir: .
+    cmds:
+      test: python3 -c "import os; print(\"cwd => \"+os.getcwd())"

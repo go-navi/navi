@@ -1,0 +1,6 @@
+# binaries
+navi
+navi.exe*
+
+# do not ignore the following files/folders
+!*/navi/

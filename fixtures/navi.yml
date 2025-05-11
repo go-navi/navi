@@ -1,0 +1,1809 @@
+commands:
+  cmd-1:
+    - node ./node/timeout_1.js
+    - node ./node/timeout_2.js
+
+  cmd-2:
+    dotenv: .env | ENV_VAR4
+    env: { ENV_VAR2: 999 }
+    run:
+      - node ./node/timeout_1.js
+      - node __ROOT__/node/timeout_2.js
+      - node ./node/env_vars.js
+
+  # command CLI description
+  cmd-3:
+    dir: python/
+    dotenv: __ROOT__/node/.node1.env | ENV_VAR4
+    env:
+      ENV_VAR2: 888
+    run:
+      - python3 timeout_1.py
+      - python3 timeout_2.py
+      - python3 env_vars.py
+
+  cmd-4:
+    shell: cmd
+    run: echo "cwd => %CD%"
+
+  cmd-5:
+    shell: bash
+    run: echo "cwd => \$PWD"
+
+  cmd-6:
+    dir: node
+    env:
+      ENV_VAR1: 888
+      ENV_VAR2: 999
+    pre:
+      run: npm run env-vars
+    run: npm run main
+    post:
+      dir: ../python/
+      run: python3 env_vars_post.py
+    after:
+      always:
+        run: python3 ../python/env_vars.py
+        env:
+          ENV_VAR1: 777
+    watch:
+      include:
+        - "**/*.css"
+      exclude:
+        - "__ROOT__/node/index_1.css"
+
+  cmd-7:
+    - node __ROOT__/node/args.js
+    - node node/args.js
+
+  cmd-8:
+    dir: node/
+    run:
+      - node __ROOT__/node/args.js
+      - node args.js
+
+  cmd-9:
+    dir: node
+    run: node timeout_1.js
+
+  cmd-10: node ./node/timeout_2.js
+
+  cmd-11: node ./node/args.js
+
+  other-1:
+    env: { ENV_VAR1: 123 }
+    run: python3 ./python/env_vars.py
+
+  general-1: node ./node/args.js command
+
+  general-2: node ./node/args.js command
+
+  # error cases
+
+  error-cmd-1: 123
+
+  error-cmd-2: node exit.js
+
+  error-cmd-3:
+    run: 123
+
+  error-cmd-4:
+    run: node exit.js
+
+  error-cmd-5:
+    watch: 123
+    run: node --version
+
+  error-cmd-6:
+    dir: .
+
+projects:
+  general-1:
+    dir: node
+    cmds:
+      general-1: node args.js project
+      general-2: node args.js project
+
+  proj-1:
+    dir: .
+    cmds:
+      test: python3 -c "import os; print(\"cwd => \"+os.getcwd())"
+      file: node file.js
+
+  proj-2:
+    dir: node/
+    cmds:
+      args: node args.js
+      cwd-cmd: cmd /C "echo \"cwd => %CD%\""
+      cwd-powershell: powershell -Command "echo \"cwd => \$PWD\""
+      cwd-bash: bash -c "echo \"cwd => \$PWD\""
+      cwd-no-shell-unix: echo "cwd => \$PWD"
+      cwd-cmd-2: cmd /C "echo \"cwd => %CD%\""
+      cwd-powershell-2: powershell -Command "echo \"cwd => \$PWD\""
+      cwd-bash-2: bash -c "echo \"cwd => \$PWD\""
+      test-1: npm run main
+      test-2: "npm run main"
+      npm: npm
+      timeout-1: npm run timeout-1
+      timeout-2: npm run timeout-2
+      exit: npm run exit
+      shutdown-1: node shutdown.js
+      shutdown-2:
+        after: npm run timeout-3
+        run: node shutdown.js
+      env-vars-1:
+        dir: ./
+        run: npm run env-vars
+        dotenv: .node1.env | ENV_VAR1, ENV_VAR3
+        pre: npm run env-vars-pre
+        post: npm run env-vars-post
+      env-vars-2:
+        run: npm run env-vars
+        dotenv: ../.env | ENV_VAR1,ENV_VAR2,ENV_VAR3,ENV_VAR4
+      env-vars-3:
+        run: npm run env-vars
+        dotenv: ../.env | ENV_VAR1, ENV_VAR2, ENV_VAR3, ENV_VAR4
+      env-vars-4:
+        run: npm run env-vars
+        dotenv: __ROOT__/.env | ENV_VAR1, ENV_VAR2, ENV_VAR3, ENV_VAR4
+      env-vars-5:
+        run: npm run env-vars
+        dotenv:
+          - __ROOT__/.env | ENV_VAR1, ENV_VAR2, ENV_VAR3, ENV_VAR4
+          - .node1.env | ENV_VAR3
+      multi-1:
+        - npm run timeout-1
+        - npm run timeout-2
+      multi-2:
+        pre:
+          - node args.js
+          - npm run args
+        run:
+          - npm run args
+          - node args.js
+
+  proj-3:
+    dir: node/
+    cmds:
+      # project command description
+      env-vars:
+        dir: ./
+        run: npm run env-vars
+        dotenv: ./.node1.env
+        pre: npm run env-vars-pre
+        post: npm run env-vars-post
+
+  proj-4:
+    dir: node/
+    pre: npm run env-vars-pre
+    cmds:
+      env-vars:
+        dir: ./
+        run: npm run env-vars
+        dotenv: .node1.env
+        post: npm run env-vars-post
+
+  proj-5:
+    dir: node/
+    post:
+      dir: ./
+      run: npm run env-vars-post
+      dotenv: ../.env | ENV_VAR1, ENV_VAR3
+    cmds:
+      env-vars-1:
+        dir: __ROOT__/node/
+        run: npm run env-vars
+        dotenv: .node1.env
+      env-vars-2:
+        dir: ./
+        run: npm run env-vars
+        dotenv: __ROOT__/node/.node1.env
+
+  proj-6:
+    dir: __ROOT__/node/
+    pre:
+      dir: ./
+      run: npm run env-vars-pre
+      dotenv: ./.node1.env | ENV_VAR1, ENV_VAR3
+    post: npm run env-vars-post
+    cmds:
+      env-vars:
+        dir: __ROOT__/node
+        run: npm run env-vars
+        dotenv: ./.node1.env
+        pre: npm run env-vars-pre
+        post:
+          run: npm run env-vars-post
+
+  proj-7:
+    dir: __ROOT__/node/../node
+    cmds:
+      env-vars:
+        dir: ./
+        run: npm run env-vars
+        pre: npm run env-vars-pre
+        post: npm run env-vars-post
+
+  proj-8:
+    dir: node/
+    post:
+      dir: ./
+      run: npm run env-vars-post
+      dotenv:
+        - ../.env | ENV_VAR1, ENV_VAR3
+        - __ROOT__/node/.node1.env | ENV_VAR3
+    cmds:
+      env-vars:
+        dir: __ROOT__/node/
+        run: npm run env-vars
+        dotenv: .node1.env
+        pre:
+          dir: __ROOT__/python/
+          run: python3 env_vars_pre.py
+          dotenv: [.env, __ROOT__/node/.node2.env]
+
+  proj-9:
+    dir: node/
+    dotenv:
+      - ../.env | ENV_VAR1, ENV_VAR3
+      - __ROOT__/node/.node1.env | ENV_VAR3
+    cmds:
+      env-vars:
+        dir: __ROOT__/python/
+        run: python3 env_vars.py
+        post:
+          run: python3 env_vars_post.py
+        pre:
+          run: python3 env_vars_pre.py
+
+  proj-10:
+    dir: node/
+    dotenv:
+      - ../.env | ENV_VAR1, ENV_VAR3
+      - __ROOT__/node/.node1.env | ENV_VAR3
+    cmds:
+      env-vars:
+        dir: __ROOT__/python/
+        run: python3 env_vars.py
+        post:
+          env:
+            ENV_VAR3: true
+            ENV_VAR4: '"quoted test '
+          run: python3 env_vars_post.py
+        pre:
+          run: python3 env_vars_pre.py
+
+  proj-11:
+    dir: node
+    cmds:
+      env-vars:
+        dir: ./
+        env:
+          ENV_VAR1: false
+          ENV_VAR3: abc 123
+        run: npm run env-vars
+        pre: npm run env-vars-pre
+        post: npm run env-vars-post
+
+  proj-12:
+    dir: node
+    env:
+      ENV_VAR1: false
+      ENV_VAR3: abc " \' \"  abc
+    cmds:
+      env-vars:
+        dir: ./
+        run: npm run env-vars
+        pre: npm run env-vars-pre
+        post: npm run env-vars-post
+
+  proj-13:
+    dir: node
+    env:
+      ENV_VAR1: false
+      ENV_VAR3: 'abc " abc'
+    pre: npm run env-vars-pre
+    cmds:
+      env-vars:
+        dir: ./
+        run: npm run env-vars
+        post: npm run env-vars-post
+
+  proj-14:
+    dir: node
+    cmds:
+      env-vars:
+        dir: ./
+        env: { ENV_VAR3: 5000 }
+        run: npm run env-vars
+        pre: npm run env-vars-pre
+        post: npm run env-vars-post
+
+  proj-15:
+    dir: node
+    shell: powershell
+    cmds:
+      shell-test:
+        run: echo "main path \$PWD"
+        post:
+          run: echo "post path \$PWD"
+
+  proj-16:
+    dir: node
+    shell: cmd
+    pre:
+      run: echo "pre path %CD%"
+    cmds:
+      shell-test:
+        shell: powershell
+        run: echo "main path \$PWD"
+        post:
+          run: echo "post path \$PWD"
+
+  proj-17:
+    dir: node
+    cmds:
+      shell-test:
+        shell: powershell
+        run: echo "main path \$PWD"
+        post:
+          run: echo "post path \$PWD"
+        pre:
+          shell: cmd
+          run: echo "pre path %CD%"
+
+  proj-18:
+    dir: node
+    shell: cmd
+    pre:
+      shell: powershell
+      run: echo "pre path \$PWD"
+    cmds:
+      shell-test:
+        run: echo "main path %CD%"
+        post:
+          shell: powershell
+          run: echo "post path \$PWD"
+
+  proj-19:
+    dir: node
+    shell: powershell
+    post:
+      shell: cmd
+      run: echo "post path %CD%"
+    cmds:
+      shell-test:
+        run: echo "main path \$PWD"
+        pre:
+          shell: cmd
+          run: echo "pre path %CD%"
+
+  proj-20:
+    dir: node
+    shell: powershell
+    cmds:
+      shell-test:
+        shell: sh
+        run: echo "main path \$PWD"
+
+  proj-21:
+    dir: node
+    shell: cmd
+    cmds:
+      shell-test:
+        shell: bash
+        run: echo "main path \$PWD"
+
+  proj-22:
+    dir: node
+    shell: powershell
+    pre:
+      shell: sh
+      run: echo "pre path \$PWD"
+    cmds:
+      shell-test:
+        shell: bash
+        run: array=(111, 222, 333); echo "${array[1]}"
+        post:
+          shell: bash
+          run: echo "post path \$PWD"
+
+  proj-23:
+    dir: node
+    shell: bash
+    post:
+      shell: sh
+      run: echo "post path \$PWD"
+    cmds:
+      shell-test:
+        shell: sh
+        run: echo "main path \$PWD"
+        pre:
+          shell: bash
+          run: array=(111, 222, 333); echo "${array[1]}"
+
+  proj-24:
+    dir: __ROOT__/node/
+    dotenv: .node1.env
+    env:
+      ENV_VAR5: abcde
+    pre:
+      dotenv: __ROOT__/.env | ENV_VAR1, ENV_VAR3
+      run: npm run env-vars-pre
+    post: npm run env-vars-post
+
+  proj-25:
+    dir: __ROOT__/node/
+    shell: cmd
+    env:
+      ENV_VAR5: custom5
+    dotenv: .node1.env
+    post: npm run env-vars-post
+    cmds:
+      test:
+        pre:
+          dotenv: __ROOT__/.env | ENV_VAR1, ENV_VAR3
+          run: npm run env-vars-pre
+        env: { ENV_VAR1: "abc123" }
+        run: node __ROOT__/node/env_vars.js
+
+  proj-26:
+    dir: __ROOT__/node/
+    shell: bash
+    dotenv: .node1.env
+    env:
+      ENV_VAR5: abcde
+    pre:
+      dotenv: __ROOT__/.env | ENV_VAR1, ENV_VAR3
+      run: array=(111, 222, 333); echo "${array[1]} ENV_VAR1=$ENV_VAR1 ENV_VAR3=$ENV_VAR3 ENV_VAR5=$ENV_VAR5"
+    post:
+      env:
+        ENV_VAR5: 5000
+      run: array=(111, 222, 333); echo "${array[1]} ENV_VAR1=$ENV_VAR1 ENV_VAR5=$ENV_VAR5"
+
+  proj-27:
+    dir: __ROOT__/node/
+    env:
+      ENV_VAR5: custom5
+    dotenv: .node1.env
+    post: npm run env-vars-post
+    cmds:
+      test:
+        shell: bash
+        pre:
+          dotenv: __ROOT__/.env | ENV_VAR1, ENV_VAR3
+          run: node __ROOT__/node/env_vars_pre.js
+        env: { ENV_VAR1: "abc123" }
+        run: node __ROOT__/node/env_vars.js
+
+  proj-28:
+    dir: .
+    cmds:
+      test:
+        - node __ROOT__/node/args.js
+        - node node/args.js
+
+  proj-29:
+    dir: node
+    cmds:
+      test:
+        run:
+          - node __ROOT__/node/args.js
+          - node args.js
+
+  proj-30:
+    dir: node
+    cmds:
+      test:
+        run:
+          - node timeout_1.js
+          - npm run timeout-2
+        post:
+          - npm run main
+          - node args.js
+
+  proj-31:
+    dir: node
+    cmds:
+      test:
+        run:
+          - node timeout_1.js
+          - npm run timeout-2
+        pre:
+          - npm run main
+          - node args.js
+
+  proj-32:
+    dir: node
+    cmds:
+      env-vars:
+        dir: ./
+        env: { ENV_VAR3: __ROOT__/node }
+        run: npm run env-vars
+        pre: npm run env-vars-pre
+        post: npm run env-vars-post
+
+  proj-33:
+    dir: python
+    cmds:
+      test: python3 main.py
+      env-vars-1:
+        run: python3 env_vars.py
+        dotenv: ../.env | ENV_VAR1, ENV_VAR4
+        pre:
+          run: python3 env_vars_pre.py
+          dotenv: __ROOT__/.env | ENV_VAR3
+        post:
+          run: python3 env_vars_post.py
+          dir: inside
+          dotenv: .env | ENV_VAR2
+      env-vars-2:
+        run: python3 env_vars.py
+        dotenv: ../.env | ENV_VAR1, ENV_VAR4
+        pre:
+          run: python3 env_vars_pre.py
+        post:
+          dir: __ROOT__/python/inside/
+          run: python3 env_vars_post.py
+      env-vars-3:
+        run: python3 env_vars.py
+        pre: python3 env_vars_pre.py
+      env-vars-4:
+        run: python3 env_vars.py
+        post:
+          dir: ./inside
+          run: python3 env_vars_post.py
+      env-vars-5:
+        run: python3 env_vars.py
+        dotenv: ../.env | ENV_VAR3
+      env-vars-6:
+        run: python3 env_vars.py
+        dotenv: ../.env | ENV_VAR3
+      server: python3 -m http.server
+
+  proj-34:
+    dir: python
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+
+  proj-35:
+    dir: python
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        pre: python3 env_vars_pre.py
+        post:
+          run: python3 env_vars_post.py
+          dir: inside/
+
+  proj-36:
+    dir: python/
+    dotenv: inside/.env
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        dotenv: ./inside/.env | ENV_VAR1, ENV_VAR4
+        pre:
+          run: python3 env_vars_pre.py
+          dotenv: inside/.env | ENV_VAR3
+        post:
+          run: python3 env_vars_post.py
+          dir: inside
+          dotenv: ./.env | ENV_VAR2
+
+  proj-37:
+    dir: __ROOT__/python
+    dotenv: ./inside/.env | ENV_VAR2, ENV_VAR4
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        dotenv: inside/.env | ENV_VAR1, ENV_VAR4
+        pre:
+          run: python3 env_vars_pre.py
+          dotenv: ./inside/.env | ENV_VAR3
+        post:
+          run: python3 env_vars_post.py
+          dir: ./inside/
+          dotenv: .env | ENV_VAR2
+
+  proj-38:
+    dir: python
+    dotenv: __ROOT__/.env | ENV_VAR2,ENV_VAR4
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        pre: python3 env_vars_pre.py
+        post:
+          run: python3 env_vars_post.py
+          dir: __ROOT__/python/inside/
+          dotenv: ../../.env | ENV_VAR1, ENV_VAR2
+
+  proj-39:
+    dir: python
+    dotenv: ../.env | ENV_VAR2, ENV_VAR4
+    pre:
+      run: python3 env_vars_pre.py
+      dotenv: ../.env | ENV_VAR1,ENV_VAR2,ENV_VAR4
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        dotenv: ../.env | ENV_VAR1, ENV_VAR4
+        post:
+          run: python3 env_vars_post.py
+          dir: ./inside
+          dotenv: __ROOT__/python/inside/.env | ENV_VAR2
+
+  proj-40:
+    dir: python
+    dotenv: __ROOT__/python/inside/.env
+    post: python3 env_vars_post.py
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        dotenv: ../.env | ENV_VAR4
+        pre:
+          dotenv: ./inside/.env | ENV_VAR1, ENV_VAR2
+          run: python3 env_vars_pre.py
+
+  proj-41:
+    dir: python
+    dotenv: inside/.env
+    pre:
+      run: python3 env_vars_pre.py
+      dir: ./
+      dotenv: ../.env | ENV_VAR2, ENV_VAR3, ENV_VAR1, ENV_VAR4
+    post:
+      run: python3 env_vars_post.py
+      dir: ./inside
+      dotenv: __ROOT__/.env | ENV_VAR2
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        dotenv: inside/.env | ENV_VAR2, ENV_VAR3
+        pre:
+          run: python3 env_vars_pre.py
+          dotenv: ./inside/.env | ENV_VAR1, ENV_VAR4
+
+  proj-42:
+    dir: __ROOT__/python
+    dotenv: ../.env | ENV_VAR1, ENV_VAR2, ENV_VAR3
+    pre: python3 env_vars_pre.py
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        dotenv: ../.env | ENV_VAR1, ENV_VAR4
+        pre:
+          run: python3 env_vars_pre.py
+          dotenv: inside/.env
+
+  proj-43:
+    dir: python
+    dotenv: .env | ENV_VAR1, ENV_VAR2, ENV_VAR3
+    pre: python3 env_vars_pre.py
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        post:
+          run: python3 env_vars_post.py
+          dotenv: inside/.env
+
+  proj-44:
+    dir: python
+    dotenv:
+      - .env | ENV_VAR2, ENV_VAR3,ENV_VAR4
+      - __ROOT__/node/.node2.env
+    pre: python3 env_vars_pre.py
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        post:
+          run: python3 env_vars_post.py
+
+  proj-45:
+    dir: python
+    dotenv:
+      - .env | ENV_VAR2, ENV_VAR3,ENV_VAR4
+      - __ROOT__/node/.node2.env
+    env:
+      ENV_VAR1: true
+      ENV_VAR2: 12.34
+    pre: python3 env_vars_pre.py
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        post:
+          run: python3 env_vars_post.py
+
+  proj-46:
+    dir: python
+    dotenv:
+      - .env | ENV_VAR2, ENV_VAR3,ENV_VAR4
+      - __ROOT__/node/.node2.env
+    pre:
+      env: { ENV_VAR1: true string, ENV_VAR2: false }
+      run: python3 env_vars_pre.py
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        post:
+          run: python3 env_vars_post.py
+
+  proj-47:
+    dir: python
+    dotenv: __ROOT__/.env
+    pre: python3 env_vars_pre.py
+    cmds:
+      env-vars:
+        run: python3 env_vars.py
+        post:
+          run: python3 env_vars_post.py
+
+  proj-48:
+    dir: python
+    dotenv: __ROOT__/python/.env
+    cmds:
+      env-vars:
+        run: python3 main.py
+        env:
+          ENV_VAR1: abc123
+        after:
+          always:
+            env: { ENV_VAR2: def456 }
+            run: python3 env_vars.py
+          success: python3 env_vars_pre.py
+          failure: python3 env_vars.py
+    after:
+      run: python3 env_vars_post.py
+      env:
+        ENV_VAR3: xyz789
+
+  proj-49:
+    dir: python
+    dotenv: .env
+    cmds:
+      env-vars:
+        run: python3 main.py
+        env:
+          ENV_VAR1: abc123
+        after:
+          dotenv: ../node/.node1.env
+          run: python3 env_vars.py
+    after:
+      run: python3 env_vars_post.py
+      dotenv: __ROOT__/node/.node2.env
+
+  proj-50:
+    dir: python
+    cmds:
+      test:
+        run: python3 exit.py
+        after: python3 main.py
+      main: python3 main.py
+    after:
+      failure: python3 main.py
+
+  proj-51:
+    dir: ./go
+    cmds:
+      :list: go list
+      npm: npm
+
+  proj-52:
+    dir: __ROOT__/go
+
+  proj-53:
+    dir: node
+    pre: node __ROOT__/node/args.js
+    post: node args.js
+    cmds:
+      list:
+        pre: node args.js
+        run: node args.js
+        post: node args.js
+      list-2:
+        pre: "node args.js"
+        run: "node args.js"
+        post: "node args.js"
+
+  proj-54:
+    dir: __ROOT__/
+    shell: cmd
+    pre: echo "pre 1"
+    post: echo "post 2"
+    cmds:
+      steps:
+        pre: echo "pre 2"
+        run: echo "main"
+        post: echo "post 1"
+
+  proj-55:
+    dir: __ROOT__/
+    shell: bash
+    pre: echo "pre 1"
+    post: echo "post 2"
+    cmds:
+      steps:
+        pre: echo "pre 2"
+        run: echo "main"
+        post: echo "post 1"
+
+  proj-56:
+    dir: node
+    shell: cmd
+    pre: echo "special chars => %SPECIAL_CHARS%"
+    post:
+      dotenv: __ROOT__/.special.chars.env
+      env:
+        ENV_VAR4: "%SPECIAL_CHARS%"
+        ENV_VAR5: ${SPECIAL_CHARS}
+      run: "node env_vars.js"
+    cmds:
+      run: echo "special chars => $SPECIAL_CHARS"
+
+  proj-57:
+    dir: node
+    shell: powershell
+    pre: echo "special chars => $SPECIAL_CHARS"
+    post:
+      dotenv: __ROOT__/.special.chars.env
+      env: { ENV_VAR4: "${SPECIAL_CHARS}" }
+      run: "node env_vars.js"
+    cmds:
+      run:
+        run: echo "special chars => ${SPECIAL_CHARS}"
+
+  proj-58:
+    dir: node
+    cmds:
+      test:
+        run: node --version
+        pre:
+          shell: cmd
+          run: echo "/\@!#$&%*)"-"_(}][]{+=^~?:;.,<>|"
+        post:
+          run: node env_vars.js
+          dotenv: __ROOT__/.special.chars.env
+          env:
+            {
+              ENV_VAR4: "/\\@!#$&%*)\"-\"_(}]'[']{+=^~?:;.,<>|",
+              ENV_VAR5: '/\@!#$&%*)"-"_(}][]{+=^~?:;.,<>|',
+            }
+
+  proj-59:
+    dir: node
+    pre:
+      shell: powershell
+      run: echo "/\@!#$&%*)"-"_(}]'[']{+=^~?:;.,<>|"
+    post:
+      dotenv: __ROOT__/.special.chars.env
+      env:
+        ENV_VAR4: /\@!#$&%*)"-"_(}]'[']{+=^~?:;.,<>|
+        ENV_VAR5: "/\\@!#$&%*)\"-\"_(}]'[']{+=^~?:;.,<>|"
+      run: node env_vars.js
+    cmds:
+      test:
+        shell: powershell
+        run: echo "/\@!#$&%*)"-"_(}]'[']{+=^~?:;.,<>|"
+
+  proj-60:
+    dir: node
+    shell: bash
+    pre:
+      run: echo "#3"
+      pre:
+        run: echo "#2"
+        pre: echo "#1"
+    cmds:
+      run:
+        run: echo "#6"
+        pre:
+          run: echo "#4"
+          post: echo "#5"
+    post:
+      run: echo "#8"
+      pre:
+        run: echo "#7"
+      post:
+        run: echo "#9"
+        post: echo "#10"
+
+  proj-61:
+    dir: node
+    shell: bash
+    pre:
+      run: echo "#3"
+      pre:
+        run: echo "#2"
+        pre: echo "#1"
+    cmds:
+      run:
+        run: echo "#6"
+        pre:
+          run: echo "#4"
+          post: echo "#5"
+        after:
+          run: 'echo " #11"'
+          post:
+            pre: 'echo " #12"'
+            run: 'echo " #13"'
+    post:
+      run: echo "#8"
+      pre:
+        run: echo "#7"
+      post:
+        run: echo "#9"
+        post: echo "#10"
+    after:
+      run: 'echo " #16"'
+      pre:
+        run: |
+          echo " #14"
+        post: 'echo " #15"'
+
+  proj-62:
+    dir: node
+    shell: bash
+    pre:
+      run: node args.js $TEST_ENV_VAR
+    post:
+      run: node args.js $PWD
+    cmds:
+      run:
+        pre:
+          run: node args.js $PWD
+        run: node args.js $TEST_ENV_VAR
+        post:
+          run: node args.js $PWD
+
+  proj-63:
+    dir: node
+    shell: bash
+    pre: node args.js ${TEST_ENV_VAR}
+    post:
+      env:
+        ENV_VAR1: ${TEST_ENV_VAR}
+        ENV_VAR2: ${TEST_NUM_ENV_VAR}
+      run: node env_vars.js
+    cmds:
+      run:
+        pre: node args.js ${PWD}
+        run: node args.js ${TEST_ENV_VAR}
+        post: node args.js ${PWD}
+
+  proj-64:
+    dir: node
+    shell: bash
+    pre: "node args.js ${TEST_ENV_VAR}"
+    post:
+      env:
+        ENV_VAR1: "${TEST_ENV_VAR}"
+        ENV_VAR2: "${TEST_NUM_ENV_VAR}"
+      run: "node env_vars.js"
+    cmds:
+      run:
+        pre: "node args.js ${PWD}"
+        run: "node args.js ${TEST_ENV_VAR}"
+        post: "node args.js ${PWD}"
+
+  proj-65:
+    dir: node
+    shell: bash
+    pre: echo "special chars => ${SPECIAL_CHARS}"
+    post:
+      dotenv: __ROOT__/.special.chars.env
+      env: { ENV_VAR4: "${SPECIAL_CHARS}" }
+      run: "node env_vars.js"
+    cmds:
+      run:
+        run: echo "special chars => ${SPECIAL_CHARS}"
+
+  proj-66:
+    dir: node
+    pre:
+      shell: bash
+      run: echo '/\@!#$&%*)"-"_(}][]{+=^~?:;.,<>|'
+    post:
+      run: node env_vars.js
+      dotenv: __ROOT__/.special.chars.env
+      env:
+        ENV_VAR4: /\@!#$&%*)"-"_(}]'[']{+=^~?:;.,<>|
+        ENV_VAR5: '/\@!#$&%*)"-"_(}][]{+=^~?:;.,<>|'
+    cmds:
+      test:
+        shell: bash
+        run: echo "/\@!#$&%*)"-"_(}]'[']{+=^~?:;.,<>|"
+
+  watch-mode-1:
+    dir: __ROOT__
+    watch:
+      include:
+        - "**/package.json"
+        - "node/*.js"
+        - "**/*.css"
+        - "**/go.mod"
+        - "**/node/**/package-lock.json"
+        - "**/inside/**"
+        - "main.go"
+      exclude:
+        - "node/index_1.css"
+        - "**/package*"
+        - "**/inside/**/index.css"
+    cmds:
+      test:
+        dir: node
+        run: node continuous.js
+
+  watch-mode-2:
+    dir: __ROOT__
+    watch:
+      include:
+        - "**/node/**/package-lock.json"
+        - "__ROOT__/node/*.js"
+        - "**/node/**/index_2.html"
+      exclude:
+        - "__ROOT__/node/index_1.css"
+    cmds:
+      test-1:
+        dir: node
+        run: node continuous.js
+        watch:
+          include:
+            - "**/package.json"
+            - "**/index_1.html"
+            - "**/*.css"
+            - "**/go.mod"
+            - "**/main.go"
+            - "**/python/**"
+      test-2:
+        dir: node
+        run: node main.js
+
+  watch-mode-3:
+    dir: python/
+    cmds:
+      test-1:
+        run: python3 continuous.py
+        watch:
+          include:
+            - "timeout_[0-9].py"
+      test-2:
+        run: python3 continuous.py
+        watch: "timeout_?.py"
+
+  watch-mode-4:
+    dir: .
+    watch:
+      include:
+        - "python/misc_[0-9].py"
+    cmds:
+      test-1:
+        dir: python
+        run: python3 continuous.py
+      test-2:
+        watch: "python/**"
+        run: python3 ./python/continuous.py
+      test-3:
+        watch: "python/**/index.css"
+        run: python3 ./python/continuous.py
+      test-4:
+        watch: "python/empty/"
+        run: python3 ./python/continuous.py
+      test-5:
+        watch: "**/*mpty/"
+        run: python3 ./python/continuous.py
+
+  watch-mode-5:
+    dir: python
+    watch:
+      include:
+        - "misc_[0-9].py/"
+    cmds:
+      test:
+        run: python3 continuous.py
+
+  watch-mode-6:
+    dir: go
+    cmds:
+      test-1:
+        watch: "**"
+        run: go run main.go
+      test-2:
+        watch: "build"
+        run: go run main.go
+      test-3:
+        watch: "build/"
+        run: go run main.go
+      test-4:
+        watch: "**/build/**"
+        run: go run main.go
+      test-5:
+        watch: "**/inner/**"
+        run: go run main.go
+      test-6:
+        watch: "build/inner/"
+        run: go run main.go
+      test-7:
+        watch:
+          - "**"
+          - "__ROOT__/python/**"
+        run: go run main.go
+
+  watch-mode-7:
+    dir: node
+    cmds:
+      test:
+        watch: "**"
+        run: node shutdown.js
+
+  watch-mode-8:
+    dir: .
+    watch: "**"
+    cmds:
+      test-1:
+        pre: python3 ./python/continuous.py
+        run: node ./node/main.js
+        post: python3 ./python/main.py
+      test-2:
+        pre: python3 __ROOT__/python/main.py
+        run: node ./node/continuous.js
+        post: python3 ./python/main.py
+      test-3:
+        dir: node
+        pre: npm run main
+        run: python3 __ROOT__/python/main.py
+        post: npm run continuous
+
+  long-project-name:
+    dir: .
+    cmds:
+      long-project-command-name: node -v
+
+  other:format:
+    dir: go
+    cmds:
+      command:format: go run main.go
+
+  other:format::
+    dir: python
+    cmds:
+      command:format:: python3 main.py
+
+  other[dependent]:
+    dir: node
+    cmds:
+      command[serial]: npm run timeout-3
+
+  other[serial]format:
+    dir: node
+    cmds:
+      command[dependent]format: npm run exit
+
+  other-loooooooooooooooong-project-name:
+    dir: .
+    cmds:
+      command-name: node -v
+
+  # error cases
+
+  error-proj-1:
+    dir: python
+    cmds:
+      :missing-env-var:
+        run: python3 env_vars.py
+        dotenv: ../.env | ENV_VAR6, ENV_VAR3
+      missing-run:
+        dir: ./
+
+  error-proj-2:
+    cmds:
+      test: node --version
+
+  error-proj-3:
+    dir: node
+    cmds:
+      test: node main.js
+      no-shell-win-1: echo "cwd => \$PWD"
+      no-shell-win-2: echo "cwd => %CD%"
+
+  error-proj-4:
+    dir: node
+    pre: node exit.js
+    cmds:
+      test: node --version
+
+  error-proj-5:
+    dir: node
+    cmds:
+      test:
+        pre: node exit.js
+        run: node --version
+
+  error-proj-6:
+    dir: node
+    cmds:
+      test:
+        post: node exit.js
+        run: node --version
+
+  error-proj-7:
+    dir: node
+    post: node exit.js
+    cmds:
+      test: node --version
+
+  error-proj-8:
+    dir: node
+    shell: bash
+    pre:
+      run: array=(111, 222, 333); echo "${array[1]}"
+    cmds:
+      shell-test:
+        shell: sh
+        run: array=(111, 222, 333); echo "${array[1]}"
+
+  error-proj-9:
+    dir: node
+    cmds:
+      test-1: 123
+      test-2:
+        run: 123
+
+  error-proj-10:
+    dir: node
+    cmds:
+      test:
+        dotenv: not_exist.env
+        run: node --version
+
+  error-proj-11:
+    dir: node
+    dotenv: .node1.env | NO_KEY
+    cmds:
+      test:
+        run: node --version
+
+  error-proj-12:
+    dir: node
+    cmds:
+      test-1:
+        after:
+          failure: node exit.js
+        run: node exit.js
+      test-2:
+        after:
+          always: node exit.js
+        run: node exit.js
+
+  error-proj-13:
+    dir: node
+    after: node exit.js
+    cmds:
+      test: npm run main
+
+  watch-mode-error-1:
+    dir: node
+    watch: 123
+    cmds:
+      test:
+        run: node --version
+
+  watch-mode-error-2:
+    dir: node
+    cmds:
+      test:
+        watch:
+          include: 123
+        run: node --version
+
+  watch-mode-error-3:
+    dir: node
+    watch:
+      include: "**/*.env"
+      exclude: 123
+    cmds:
+      test:
+        run: node --version
+
+  watch-mode-error-4:
+    dir: .
+    watch: "[]a]"
+    cmds:
+      test:
+        dir: node
+        run: node continuous.js
+
+  watch-mode-error-5:
+    dir: node
+    watch: "**"
+    cmds:
+      test: node exit.js
+
+  watch-mode-error-6:
+    dir: .
+    watch: "**"
+    after:
+      success: node ./node/exit.js
+    cmds:
+      test-1: node ./node/main.js
+      test-2:
+        run: node ./node/continuous.js
+        after:
+          change: node ./node/exit.js
+
+  watch-mode-error-7:
+    dir: node
+    watch: "**"
+    cmds:
+      test:
+        run: node exit.js
+        after:
+          success: node main.js
+          failure: node main.js
+          always: node exit.js
+
+runners:
+  runner-1: proj-2:test-1
+
+  runner-2:
+    - cmd: proj-2:test-1
+      name: node-test
+
+  runner-3: ["proj-2:test-1", "proj-2:test-1", "proj-33:test", "proj-33:test", "proj-2:test-2"]
+
+  runner-4:
+    - proj-2:test-1
+    - proj-2:test-1
+    - proj-33:test
+
+  runner-5:
+    - proj-33:env-vars-2
+    - proj-2:test-1
+
+  runner-6:
+    - proj-39:env-vars
+    - proj-2:test-1
+
+  runner-7:
+    - proj-2:npm run args arg1
+    - proj-2:args arg1 arg2
+    - proj-2 node args.js arg1 arg2 arg3
+    - proj-2:npm run args "single arg"
+    - proj-2:npm run args arg "single arg"
+    - proj-2:args "single arg"
+    - proj-2:args arg "single arg"
+    - proj-2 node args.js "single arg"
+    - proj-2 node args.js arg "single arg"
+
+  runner-8:
+    - ./navi runner-4
+    - ./navi runner-5
+
+  runner-9:
+    - proj-2:timeout-1
+    - node __ROOT__/node/timeout_2.js
+
+  runner-10:
+    - cmd: node __ROOT__/node/timeout_1.js
+    - cmd: proj-2:timeout-2
+
+  # multiline
+  # runner description
+  runner-11:
+    - cmd: proj-2:test-1
+      delay: 5
+
+  runner-12:
+    - proj-2:test-1
+    - proj-2:test-1
+    - cmd: proj-2:test-1
+      delay: 3
+
+  runner-13:
+    - cmd: proj-2:test-1
+      delay: 5
+    - cmd: proj-2:test-1
+      name: proj-2:test-1
+      delay: 10
+
+  runner-14:
+    - cmd: proj-2:exit
+      restart: true
+
+  runner-15:
+    - cmd: proj-2:exit
+      restart: true
+      delay: 2
+
+  runner-16:
+    - cmd: proj-2:exit
+      restart: true
+    - cmd: proj-2:exit
+      name: node-wait-2
+      restart: true
+    - proj-2:test-1
+
+  runner-17:
+    - cmd: proj-2:exit
+      restart:
+        retries: 3
+
+  runner-18:
+    - cmd: proj-2:exit
+      name: 2 proj-2:exit
+      delay: 3
+      restart:
+        retries: 2
+    - cmd: proj-2:exit
+      name: 1 proj-2:exit
+      delay: 0.2
+      restart:
+        retries: 3
+
+  runner-19:
+    - cmd: proj-33 python3 -m http.server 5001
+      delay: 3
+    - cmd: proj-2:test-1
+      awaits: 5001
+
+  runner-20:
+    - python3 -m http.server 5001
+    - cmd: proj-2:test-1
+      awaits: 5001
+
+  runner-21:
+    - cmd: proj-2:test-1
+      awaits:
+        ports: 5001
+        timeout: 10
+
+  runner-22:
+    - cmd: proj-33:server 5001
+      delay: 1
+    - cmd: python3 -m http.server 5002
+      delay: 6
+    - cmd: proj-33:server 5003
+      delay: 7
+    - cmd: proj-2:test-1
+      awaits: 5001
+    - cmd: proj-2:test-1
+      awaits:
+        ports:
+          - 5001
+          - 5002
+          - 5003
+        timeout: 50
+
+  runner-23:
+    - proj-33:server 5001
+    - cmd: proj-2:exit
+      delay: 1.5
+      awaits: 5001
+      restart: true
+
+  runner-24:
+    - cmd: proj-2:timeout-2
+      delay: 2
+      awaits:
+        ports: 5001
+        timeout: 2
+      restart:
+        retries: 3
+
+  runner-25:
+    - cmd: proj-2:timeout-1
+      delay: 2
+      awaits:
+        ports: 5001
+        timeout: 15.5
+      restart:
+        retries: 3
+    - cmd: proj-2:timeout-1
+      name: node-wait-port
+      delay: 1
+      awaits: 5001
+      restart:
+        retries: 3
+
+  runner-26:
+    - cmd: python3 -m http.server 5001
+      delay: 1
+    - cmd: proj-33:server 5002
+      delay: 2
+    - cmd: proj-2:exit
+      awaits: [5001, 5002]
+      restart: true
+
+  runner-27:
+    - cmd: proj-2:exit
+      restart:
+        interval: 4
+
+  runner-28:
+    - cmd: proj-2:exit
+      restart:
+        retries: 3
+        interval: 3
+
+  runner-29:
+    - cmd: proj-2:exit
+      restart:
+        interval: 4
+    - cmd: proj-2:exit
+      restart:
+        interval: 3
+
+  runner-30:
+    - cmd: node npm
+      restart:
+        condition: success
+    - cmd: node --version
+      restart:
+        condition: success
+
+  runner-31:
+    - cmd: node npm
+      restart:
+        condition: always
+    - cmd: node --version
+      restart:
+        condition: always
+
+  runner-32:
+    - cmd: node npm
+      restart: true
+    - cmd: node --version
+      restart:
+        condition: failure
+
+  runner-33:
+    - cmd: proj-2:exit
+      restart: true
+    - cmd: proj-2:test-1
+      restart: true
+
+  runner-34:
+    - cmd: proj-2:timeout-1
+      serial: true
+    - proj-2:timeout-1
+    - cmd: proj-2:timeout-2
+      serial: true
+    - proj-2:timeout-2
+
+  runner-35[serial]:
+    - proj-2:timeout-1
+    - proj-2:timeout-1
+    - proj-2:timeout-2
+    - proj-2:timeout-2
+
+  runner-36:
+    - proj-2:timeout-1
+    - proj-2:timeout-1
+    - proj-2:timeout-2
+    - proj-2:timeout-2
+
+  runner-37:
+    - proj-2:timeout-1
+    - cmd: proj-2:exit
+      serial: true
+    - proj-2:timeout-2
+
+  runner-38[serial]:
+    - proj-2:timeout-1
+    - proj-2:exit
+    - proj-2:timeout-2
+
+  runner-39:
+    - proj-2:timeout-1
+    - proj-2:exit
+    - proj-2:timeout-2
+
+  runner-40:
+    - proj-2:timeout-1
+    - cmd: proj-2:exit
+      dependent: true
+    - proj-2:timeout-2
+
+  runner-41[dependent]:
+    - proj-2:timeout-1
+    - proj-2:exit
+    - proj-2:timeout-2
+
+  runner-42:
+    - proj-2:timeout-1
+    - proj-2:exit
+    - proj-2:timeout-2
+
+  runner-43[serial,dependent]:
+    - proj-2:timeout-1
+    - proj-2:exit
+    - proj-2:timeout-2
+
+  runner-44:
+    - cmd: proj-2:timeout-2
+      awaits: invalid
+
+  runner-45:
+    - cmd: proj-2:timeout-2
+      awaits: [5001, invalid]
+
+  runner-46:
+    - cmd: proj-2:timeout-2
+      awaits:
+        ports: [5001, invalid]
+        timeout: 10
+
+  runner-47:
+    - cmd: proj-2:timeout-2
+      awaits:
+        ports: invalid
+
+  runner-48:
+    - cmd: proj-2:timeout-2
+      awaits:
+        ports: 5001
+        timeout: invalid
+
+  runner-49:
+    - cmd: watch-mode-1:test
+      name: 2 watch-mode:test
+      restart:
+        retries: 3
+    - cmd: watch-mode-error-5:test
+      name: 1 watch-mode:error
+      restart:
+        retries: 3
+
+  runner-50:
+    - cmd: watch-mode-1:test
+      restart:
+        retries: 3
+    - cmd: watch-mode-2:test-2
+      restart:
+        retries: 3
+
+  runner-51:
+    - node ./node/continuous.js
+    - proj-50:test
+
+  runner-52:
+    - node ./node/continuous.js
+    - cmd: proj-50:test
+      restart:
+        retries: 2
+
+  runner-53:
+    - node ./node/continuous.js
+    - cmd: proj-50:test
+      delay: 2
+
+  runner-54:
+    - other[dependent]:command[serial]
+    - proj-2:timeout-1
+    - proj-2:timeout-2
+
+  runner-55:
+    - other[serial]format:command[dependent]format
+    - proj-2:timeout-1
+    - proj-2:timeout-2
+    - proj-2 npm run timeout-3
+
+  runner-56[serial]format:
+    - proj-2:timeout-1
+    - proj-2:timeout-2
+
+  runner-57[dependent]format:
+    - proj-2:exit
+    - proj-2:timeout-2
+    - proj-2 npm run timeout-3
+
+  runner-58[serial,dependent]format:
+    - proj-2:timeout-1
+    - proj-2:exit
+    - proj-2:timeout-2
+    - proj-2 npm run timeout-3
+
+  runner-59:
+    - other-loooooooooooooooong-project-name:command-name
+    - other-loooooooooooooooong-project-name:command-name
+
+  runner-60:
+    - general-2
+    - proj-2:test-1
+
+  runner-61:
+    - cmd-9
+    - cmd: proj-2:test-1
+      name: cmd-9
+
+  runner-62:
+    - cmd: cmd-9
+      restart:
+        condition: success
+      delay: 2
+    - proj-2:test-1
+
+  runner-63:
+    - cmd: python3 -m http.server 5001
+      delay: 1
+    - cmd: cmd-9
+      awaits: 5001
+
+  runner-64: general-1:*
+
+  runner-65:
+    - cmd-1
+    - general-1:*
+
+  runner-66:
+    - cmd-1
+    - cmd: general-1:*
+      delay: 2
+      restart:
+        condition: success
+
+  runner-67[serial, dependent]:
+    - other:format:*
+    - proj-50:*
+    - other-1
+
+  runner-68: other:format:*
+
+  general-1:
+    - node node/args.js runner
+
+  # error cases
+
+  runner-error-1:
+    - cmd: node npm
+      restart:
+        condition: invalid
+
+  runner-error-2: 123
+
+  runner-error-3:
+    - '\'
+
+  runner-error-4: '\'
+
+  runner-error-5:
+    - cmd: '\'
+
+  runner-error-6:
+    - delay: 1
+
+  runner-error-7:
+    - node ./node/continuous.js
+    - error-proj-12:test-1
+
+  runner-error-8:
+    - node ./node/continuous.js
+    - error-proj-13:test
+
+  runner-error-9:
+    - node ./node/continuous.js
+    - cmd: error-proj-12:test-1
+      restart:
+        retries: 2
+
+  runner-error-10:
+    - node ./node/continuous.js
+    - cmd: error-proj-13:test
+      restart:
+        retries: 2
+
+  runner-error-11:
+    - node ./node/continuous.js
+    - cmd: error-proj-13:test
+      restart:
+        condition: failure
+
+  runner-error-12:
+    - node ./node/continuous.js
+    - cmd: error-proj-12:test-1
+      delay: 2
+
+  runner-error-13:
+    - node ./node/continuous.js
+    - cmd: error-proj-13:test
+      delay: 2
